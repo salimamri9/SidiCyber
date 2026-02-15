@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/analyze"; // Update this to your deployed Azure URL
+const API_URL = "https://sidicyber.salimamri.tech/api/analyze"; // Update this to your deployed Azure URL
 const API_KEY = "JhYM4alriQHfFIteo6zOsUEn9jZTqNgA"; // Matching the key in your .env
 
 document.getElementById('analyze-btn').addEventListener('click', async () => {
