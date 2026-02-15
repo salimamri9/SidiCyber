@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { DirUpdater } from "@/components/DirUpdater";
 import { I18nProvider } from "@/lib/i18n";
+import { GameProvider } from "@/lib/game";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -35,9 +36,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <I18nProvider>
-          <DirUpdater />
-          <Navbar />
-          <main className="flex min-h-screen flex-col pt-20">{children}</main>
+          <GameProvider>
+            <DirUpdater />
+            <Navbar />
+            <main className="flex min-h-screen flex-col pt-20">{children}</main>
+          </GameProvider>
         </I18nProvider>
       </body>
     </html>

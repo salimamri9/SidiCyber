@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Shield, Menu, X, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n, type Locale } from "@/lib/i18n";
+import { XPBar } from "@/components/XPBar";
 
 const langLabels: Record<Locale, string> = {
   ar: "عربي",
@@ -70,6 +71,9 @@ export function Navbar() {
             })}
           </div>
         </div>
+
+        {/* XP Bar — desktop only */}
+        <XPBar />
 
         {/* Language — right side */}
         <div className="relative ms-auto shrink-0 md:ms-0">

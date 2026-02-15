@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield,
@@ -11,12 +11,17 @@ import {
   ChevronRight,
   RotateCcw,
   Zap,
-  Trophy,
   Sparkles,
   AlertTriangle,
+  Flame,
 } from "lucide-react";
 import { PhoneFrame } from "@/components/PhoneFrame";
 import { useI18n } from "@/lib/i18n";
+import { useGame, type Difficulty } from "@/lib/game";
+import { QuestionTimer } from "@/components/QuestionTimer";
+import { ConfettiBurst } from "@/components/ConfettiBurst";
+import { XPToast } from "@/components/XPToast";
+import { GameResults } from "@/components/GameResults";
 
 type Choice = "safe" | "suspicious" | "scam";
 
@@ -40,6 +45,7 @@ interface AnalysisResult {
 
 export default function SimulatorPage() {
   const { t, locale } = useI18n();
+  const { addXP, recordAnswer, currentStreak, bestStreak, resetSession } = useGame();
   const Arrow = locale === "ar" ? ChevronLeft : ChevronRight;
 
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -53,6 +59,20 @@ export default function SimulatorPage() {
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
+
+  // Game state
+  const [timerKey, setTimerKey] = useState(0);
+  const [timerActive, setTimerActive] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [shake, setShake] = useState(false);
+  const [sessionXP, setSessionXP] = useState(0);
+  const [xpToast, setXpToast] = useState<{ xp: number; reason: string; show: boolean }>({
+    xp: 0,
+    reason: "",
+    show: false,
+  });
+  const [sessionBestStreak, setSessionBestStreak] = useState(0);
+  const timerRef = useRef<HTMLDivElement>(null);
 
   const loadScenarios = useCallback(async () => {
     setLoadingScenarios(true);
@@ -73,17 +93,29 @@ export default function SimulatorPage() {
   }, []);
 
   useEffect(() => {
+    resetSession();
     loadScenarios();
-  }, [loadScenarios]);
+  }, [loadScenarios, resetSession]);
 
   const scenario = scenarios[currentIndex];
   const total = scenarios.length;
 
+  const showXPToast = useCallback((xp: number, reason: string) => {
+    setXpToast({ xp, reason, show: true });
+    setTimeout(() => setXpToast((prev) => ({ ...prev, show: false })), 2000);
+  }, []);
+
   const analyzeChoice = useCallback(
     async (userChoice: Choice, sc: Scenario) => {
       setChoice(userChoice);
+      setTimerActive(false);
       setLoading(true);
       setAnalysisError(null);
+
+      // Get elapsed time from timer
+      const timerEl = timerRef.current?.querySelector("[data-elapsed]");
+      const elapsed = timerEl ? parseFloat(timerEl.getAttribute("data-elapsed") || "30") : 30;
+
       try {
         const res = await fetch("/api/simulate", {
           method: "POST",
@@ -96,7 +128,28 @@ export default function SimulatorPage() {
         }
         const data = await res.json();
         const correct = userChoice === sc.answer;
-        if (correct) setScore((s) => s + 1);
+
+        if (correct) {
+          setScore((s) => s + 1);
+          recordAnswer(true);
+          const xp = addXP(50, elapsed, sc.difficulty as Difficulty);
+          setSessionXP((s) => s + xp);
+
+          // Build reason
+          const reasons: string[] = [];
+          if (elapsed < 5) reasons.push(t("game.speedBonus"));
+          if (currentStreak + 1 > 1) reasons.push(`${currentStreak + 1}x ${t("game.combo")}`);
+          showXPToast(xp, reasons.join(" "));
+
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 2000);
+        } else {
+          recordAnswer(false);
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
+
+        setSessionBestStreak((prev) => Math.max(prev, correct ? currentStreak + 1 : prev));
         setAnalysis({ correct, ...data });
       } catch (err) {
         setAnalysisError(err instanceof Error ? err.message : "AI analysis failed");
@@ -104,8 +157,29 @@ export default function SimulatorPage() {
         setLoading(false);
       }
     },
-    []
+    [addXP, recordAnswer, currentStreak, showXPToast, t]
   );
+
+  const handleTimeout = useCallback(() => {
+    if (choice) return;
+    setTimerActive(false);
+    recordAnswer(false);
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+    // Auto-advance after timeout
+    setTimeout(() => {
+      if (currentIndex < total - 1) {
+        setCurrentIndex((i) => i + 1);
+        setChoice(null);
+        setAnalysis(null);
+        setAnalysisError(null);
+        setTimerKey((k) => k + 1);
+        setTimerActive(true);
+      } else {
+        setShowResults(true);
+      }
+    }, 1500);
+  }, [choice, currentIndex, total, recordAnswer]);
 
   const nextScenario = () => {
     if (currentIndex < total - 1) {
@@ -113,6 +187,8 @@ export default function SimulatorPage() {
       setChoice(null);
       setAnalysis(null);
       setAnalysisError(null);
+      setTimerKey((k) => k + 1);
+      setTimerActive(true);
     } else {
       setShowResults(true);
     }
@@ -125,6 +201,11 @@ export default function SimulatorPage() {
     setAnalysisError(null);
     setScore(0);
     setShowResults(false);
+    setTimerKey((k) => k + 1);
+    setTimerActive(true);
+    setSessionXP(0);
+    setSessionBestStreak(0);
+    resetSession();
     loadScenarios();
   };
 
@@ -198,60 +279,24 @@ export default function SimulatorPage() {
 
   // --------------- Results screen ---------------
   if (showResults) {
-    const pct = Math.round((score / total) * 100);
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
-        <div className="w-full max-w-3xl">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="mx-auto w-full max-w-lg rounded-2xl border border-cyber-border bg-cyber-card p-10 text-center sm:max-w-xl sm:p-14"
-          >
-            <Trophy
-              className={`mx-auto mb-8 h-16 w-16 sm:h-20 sm:w-20 ${
-                pct >= 70 ? "text-cyber-green" : "text-cyber-yellow"
-              }`}
-            />
-            <h2 className="mb-4 text-2xl font-black sm:text-3xl">
-              {t("sim.complete")}
-            </h2>
-            <div
-              className={`my-10 text-6xl font-black sm:text-7xl ${
-                pct >= 70
-                  ? "text-cyber-green"
-                  : pct >= 40
-                  ? "text-cyber-yellow"
-                  : "text-cyber-red"
-              }`}
-            >
-              {pct}%
-            </div>
-            <p className="mb-3 text-base text-cyber-text-dim sm:text-lg">
-              {t("sim.correctCount")}{" "}
-              <span className="font-bold text-cyber-text">{score}</span>{" "}
-              {t("sim.of")}{" "}
-              <span className="font-bold text-cyber-text">{total}</span>{" "}
-              {t("sim.scenarios")}
-            </p>
-            <p className="mb-12 text-cyber-text-dim">
-              {pct >= 70 ? t("sim.excellent") : t("sim.needMore")}
-            </p>
-            <button
-              onClick={restart}
-              className="mx-auto flex items-center gap-2 rounded-xl bg-cyber-cyan px-8 py-4 font-bold text-cyber-darker transition hover:bg-cyber-cyan/80"
-            >
-              <RotateCcw className="h-5 w-5" />
-              {t("sim.restart")}
-            </button>
-          </motion.div>
-        </div>
-      </div>
+      <GameResults
+        sessionXP={sessionXP}
+        correctCount={score}
+        totalCount={total}
+        bestStreak={sessionBestStreak}
+        onRestart={restart}
+        mode="simulator"
+      />
     );
   }
 
   // --------------- Main simulator screen ---------------
   return (
-    <div className="cyber-grid flex flex-1 flex-col items-center px-4 py-10 sm:px-8 sm:py-16">
+    <div className={`cyber-grid flex flex-1 flex-col items-center px-4 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
+      <ConfettiBurst trigger={showConfetti} />
+      <XPToast xp={xpToast.xp} reason={xpToast.reason} show={xpToast.show} />
+
       <div className="my-auto w-full max-w-4xl">
         {/* ---- Header with title + badges ---- */}
         <div className="mb-10 flex flex-col gap-6 sm:mb-12 sm:flex-row sm:items-center sm:justify-between">
@@ -270,6 +315,15 @@ export default function SimulatorPage() {
               <span className="font-bold text-cyber-cyan">{score}</span>/
               {total}
             </div>
+            {/* Combo badge */}
+            {currentStreak > 1 && (
+              <div className="animate-combo-pop flex items-center gap-1.5 rounded-lg border border-cyber-yellow/30 bg-cyber-yellow/10 px-4 py-3 text-xs sm:px-5 sm:py-3.5 sm:text-sm">
+                <Flame className="h-4 w-4 text-cyber-yellow" />
+                <span className="font-bold text-cyber-yellow">
+                  {currentStreak}x {t("game.combo")}
+                </span>
+              </div>
+            )}
             <div className="rounded-lg border border-cyber-border bg-cyber-card px-6 py-3 text-xs sm:px-7 sm:py-3.5 sm:text-sm">
               {t("sim.scenario")}:{" "}
               <span className="font-bold text-cyber-cyan">
@@ -328,7 +382,18 @@ export default function SimulatorPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-4"
                 >
-                  <h3 className="mb-10 text-lg font-bold sm:text-xl">
+                  {/* Timer */}
+                  <div ref={timerRef} className="mb-6 flex justify-center">
+                    <QuestionTimer
+                      key={timerKey}
+                      duration={30}
+                      onTimeout={handleTimeout}
+                      isActive={timerActive}
+                      variant="ring"
+                    />
+                  </div>
+
+                  <h3 className="mb-6 text-lg font-bold sm:text-xl">
                     {t("sim.question")}
                   </h3>
                   {[
@@ -410,6 +475,8 @@ export default function SimulatorPage() {
                     onClick={() => {
                       setChoice(null);
                       setAnalysisError(null);
+                      setTimerKey((k) => k + 1);
+                      setTimerActive(true);
                     }}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl border border-cyber-border bg-cyber-card py-4 text-base font-bold text-cyber-text transition-all hover:bg-cyber-border/30"
                   >

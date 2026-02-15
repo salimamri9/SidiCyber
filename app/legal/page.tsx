@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Scale,
@@ -9,11 +9,16 @@ import {
   CheckCircle2,
   XCircle,
   RotateCcw,
-  Trophy,
   Gavel,
   AlertTriangle,
+  Flame,
 } from "lucide-react";
 import { useI18n, type Locale } from "@/lib/i18n";
+import { useGame } from "@/lib/game";
+import { QuestionTimer } from "@/components/QuestionTimer";
+import { ConfettiBurst } from "@/components/ConfettiBurst";
+import { XPToast } from "@/components/XPToast";
+import { GameResults } from "@/components/GameResults";
 
 interface LegalQuestion {
   id: number;
@@ -25,6 +30,7 @@ interface LegalQuestion {
 
 export default function LegalPage() {
   const { t, locale } = useI18n();
+  const { addXP, recordAnswer, currentStreak, resetSession } = useGame();
   const Arrow = locale === "ar" ? ChevronLeft : ChevronRight;
 
   const [questions, setQuestions] = useState<LegalQuestion[]>([]);
@@ -35,6 +41,20 @@ export default function LegalPage() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
+
+  // Game state
+  const [timerKey, setTimerKey] = useState(0);
+  const [timerActive, setTimerActive] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [shake, setShake] = useState(false);
+  const [sessionXP, setSessionXP] = useState(0);
+  const [xpToast, setXpToast] = useState<{ xp: number; reason: string; show: boolean }>({
+    xp: 0,
+    reason: "",
+    show: false,
+  });
+  const [sessionBestStreak, setSessionBestStreak] = useState(0);
+  const timerRef = useRef<HTMLDivElement>(null);
 
   const loadQuestions = useCallback(async () => {
     setLoadingQuestions(true);
@@ -55,23 +75,77 @@ export default function LegalPage() {
   }, []);
 
   useEffect(() => {
+    resetSession();
     loadQuestions();
-  }, [loadQuestions]);
+  }, [loadQuestions, resetSession]);
 
   const question = questions[currentIndex];
   const total = questions.length;
   const answered = selectedOption !== null;
 
+  const showXPToast = useCallback((xp: number, reason: string) => {
+    setXpToast({ xp, reason, show: true });
+    setTimeout(() => setXpToast((prev) => ({ ...prev, show: false })), 2000);
+  }, []);
+
   const selectOption = (index: number) => {
     if (answered) return;
     setSelectedOption(index);
-    if (question.options[index].correct) setScore((s) => s + 1);
+    setTimerActive(false);
+
+    const correct = question.options[index].correct;
+
+    // Get elapsed time from timer
+    const timerEl = timerRef.current?.querySelector("[data-elapsed]");
+    const elapsed = timerEl ? parseFloat(timerEl.getAttribute("data-elapsed") || "20") : 20;
+
+    if (correct) {
+      setScore((s) => s + 1);
+      recordAnswer(true);
+      const xp = addXP(50, elapsed, "medium");
+      setSessionXP((s) => s + xp);
+
+      const reasons: string[] = [];
+      if (elapsed < 5) reasons.push(t("game.speedBonus"));
+      if (currentStreak + 1 > 1) reasons.push(`${currentStreak + 1}x ${t("game.combo")}`);
+      showXPToast(xp, reasons.join(" "));
+
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
+    } else {
+      recordAnswer(false);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
+
+    setSessionBestStreak((prev) => Math.max(prev, correct ? currentStreak + 1 : prev));
   };
+
+  const handleTimeout = useCallback(() => {
+    if (selectedOption !== null) return;
+    setTimerActive(false);
+    recordAnswer(false);
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+    // Auto-advance after timeout
+    setTimeout(() => {
+      if (currentIndex < total - 1) {
+        setCurrentIndex((i) => i + 1);
+        setSelectedOption(null);
+        setTimerKey((k) => k + 1);
+        setTimerActive(true);
+      } else {
+        setShowResults(true);
+      }
+    }, 1500);
+  }, [selectedOption, currentIndex, total, recordAnswer]);
 
   const next = () => {
     if (currentIndex < total - 1) {
       setCurrentIndex((i) => i + 1);
       setSelectedOption(null);
+      setTimerKey((k) => k + 1);
+      setTimerActive(true);
     } else {
       setShowResults(true);
     }
@@ -82,6 +156,11 @@ export default function LegalPage() {
     setSelectedOption(null);
     setScore(0);
     setShowResults(false);
+    setTimerKey((k) => k + 1);
+    setTimerActive(true);
+    setSessionXP(0);
+    setSessionBestStreak(0);
+    resetSession();
     loadQuestions();
   };
 
@@ -141,56 +220,24 @@ export default function LegalPage() {
 
   // --------------- Results screen ---------------
   if (showResults) {
-    const pct = Math.round((score / total) * 100);
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-lg"
-        >
-          <div className="rounded-2xl border border-cyber-border bg-cyber-card p-10 text-center sm:p-14">
-            <Trophy
-              className={`mx-auto mb-4 h-14 w-14 sm:h-16 sm:w-16 ${
-                pct >= 70 ? "text-cyber-green" : "text-cyber-yellow"
-              }`}
-            />
-            <h2 className="mb-2 text-2xl font-black sm:text-3xl">
-              {t("legal.complete")}
-            </h2>
-            <div
-              className={`my-5 text-5xl font-black sm:my-6 sm:text-6xl ${
-                pct >= 70 ? "text-cyber-green" : pct >= 40 ? "text-cyber-yellow" : "text-cyber-red"
-              }`}
-            >
-              {pct}%
-            </div>
-            <p className="mb-2 text-base text-cyber-text-dim sm:text-lg">
-              {t("legal.correctCount")}{" "}
-              <span className="font-bold text-cyber-text">{score}</span>{" "}
-              {t("legal.of")}{" "}
-              <span className="font-bold text-cyber-text">{total}</span>{" "}
-              {t("legal.questions")}
-            </p>
-            <p className="mb-8 text-cyber-text-dim">
-              {pct >= 70 ? t("legal.excellent") : t("legal.needMore")}
-            </p>
-            <button
-              onClick={restart}
-              className="mx-auto flex items-center gap-2 rounded-xl bg-cyber-purple px-6 py-3 font-bold text-white transition hover:bg-cyber-purple/80"
-            >
-              <RotateCcw className="h-5 w-5" />
-              {t("legal.restart")}
-            </button>
-          </div>
-        </motion.div>
-      </div>
+      <GameResults
+        sessionXP={sessionXP}
+        correctCount={score}
+        totalCount={total}
+        bestStreak={sessionBestStreak}
+        onRestart={restart}
+        mode="legal"
+      />
     );
   }
 
   // --------------- Quiz ---------------
   return (
-    <div className="cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
+    <div className={`cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
+      <ConfettiBurst trigger={showConfetti} />
+      <XPToast xp={xpToast.xp} reason={xpToast.reason} show={xpToast.show} />
+
       <div className="my-auto w-full max-w-3xl">
         {/* Header */}
         <motion.div
@@ -214,9 +261,20 @@ export default function LegalPage() {
           <span>
             {t("legal.question")} {currentIndex + 1} {t("legal.of")} {total}
           </span>
-          <span>
-            {t("legal.score")}: {score}/{total}
-          </span>
+          <div className="flex items-center gap-3">
+            {/* Combo badge */}
+            {currentStreak > 1 && (
+              <div className="animate-combo-pop flex items-center gap-1 rounded-lg border border-cyber-yellow/30 bg-cyber-yellow/10 px-2.5 py-1">
+                <Flame className="h-3 w-3 text-cyber-yellow" />
+                <span className="text-xs font-bold text-cyber-yellow">
+                  {currentStreak}x
+                </span>
+              </div>
+            )}
+            <span>
+              {t("legal.score")}: {score}/{total}
+            </span>
+          </div>
         </div>
         <div className="mb-8 h-2.5 overflow-hidden rounded-full bg-cyber-border sm:mb-10">
           <motion.div
@@ -225,6 +283,18 @@ export default function LegalPage() {
               width: `${((currentIndex + (answered ? 1 : 0)) / total) * 100}%`,
             }}
             transition={{ duration: 0.5 }}
+          />
+        </div>
+
+        {/* Timer bar */}
+        <div ref={timerRef} className="mb-6">
+          <QuestionTimer
+            key={timerKey}
+            duration={20}
+            onTimeout={handleTimeout}
+            isActive={timerActive}
+            isPaused={answered}
+            variant="bar"
           />
         </div>
 
