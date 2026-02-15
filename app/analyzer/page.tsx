@@ -30,6 +30,7 @@ export default function AnalyzerPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [streamText, setStreamText] = useState("");
 
   const exampleMessages = [
@@ -56,6 +57,7 @@ export default function AnalyzerPage() {
 
     setLoading(true);
     setResult(null);
+    setError(null);
     setStreamText("");
 
     try {
@@ -97,29 +99,8 @@ export default function AnalyzerPage() {
         const data = await res.json();
         setResult(data);
       }
-    } catch {
-      const hasUrl = /https?:\/\/|\.tk|\.xyz|\.ml/i.test(message);
-      const hasUrgency = /عاجل|فوراً|خلال|ساعة|قبل|urgent|immediately/i.test(message);
-      const hasPersonalInfo = /بطاقة|هوية|حساب|كلمة|مرور|رقم|password|account|identity/i.test(message);
-
-      let riskScore = 20;
-      const redFlags: string[] = [];
-      if (hasUrl) { riskScore += 30; redFlags.push("Contains suspicious link"); }
-      if (hasUrgency) { riskScore += 20; redFlags.push("Uses urgency to pressure you"); }
-      if (hasPersonalInfo) { riskScore += 25; redFlags.push("Requests sensitive personal info"); }
-      riskScore = Math.min(riskScore, 95);
-
-      setResult({
-        riskScore,
-        verdict: riskScore > 60 ? "Dangerous — likely a scam" : riskScore > 30 ? "Suspicious — be careful" : "Low risk",
-        redFlags: redFlags.length > 0 ? redFlags : ["No obvious red flags detected"],
-        explanation: riskScore > 60
-          ? "This message contains strong scam indicators. Suspicious links, personal info requests, and urgency are all warning signs."
-          : "The message appears relatively normal but it's recommended to verify the source.",
-        recommendation: riskScore > 60
-          ? "Do not click any links or share personal info. Delete the message and report it."
-          : "Verify with the official source before taking any action.",
-      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "AI analysis failed");
     } finally {
       setLoading(false);
     }
@@ -128,6 +109,7 @@ export default function AnalyzerPage() {
   const reset = () => {
     setInput("");
     setResult(null);
+    setError(null);
     setStreamText("");
   };
 
@@ -228,6 +210,25 @@ export default function AnalyzerPage() {
                   </span>
                 </button>
               ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-cyber-red/30 bg-cyber-red/5 p-6 sm:p-8"
+          >
+            <div className="flex items-center gap-4">
+              <AlertTriangle className="h-8 w-8 shrink-0 text-cyber-red" />
+              <div>
+                <p className="text-lg font-bold text-cyber-red">
+                  {t("analyzer.error") || "Error"}
+                </p>
+                <p className="mt-2 text-sm text-cyber-text-dim">{error}</p>
+              </div>
             </div>
           </motion.div>
         )}

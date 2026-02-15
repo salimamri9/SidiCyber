@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield,
@@ -13,12 +13,22 @@ import {
   Zap,
   Trophy,
   Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 import { PhoneFrame } from "@/components/PhoneFrame";
-import { scenarios, type Scenario } from "@/lib/scenarios";
 import { useI18n } from "@/lib/i18n";
 
 type Choice = "safe" | "suspicious" | "scam";
+
+interface Scenario {
+  id: string;
+  title: string;
+  category: "sms" | "whatsapp" | "email";
+  sender: string;
+  message: string;
+  answer: "scam" | "suspicious" | "safe";
+  difficulty: "easy" | "medium" | "hard";
+}
 
 interface AnalysisResult {
   correct: boolean;
@@ -32,12 +42,39 @@ export default function SimulatorPage() {
   const { t, locale } = useI18n();
   const Arrow = locale === "ar" ? ChevronLeft : ChevronRight;
 
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [loadingScenarios, setLoadingScenarios] = useState(true);
+  const [scenarioError, setScenariosError] = useState<string | null>(null);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [choice, setChoice] = useState<Choice | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
+
+  const loadScenarios = useCallback(async () => {
+    setLoadingScenarios(true);
+    setScenariosError(null);
+    try {
+      const res = await fetch("/api/generate-scenarios", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.details || `API error: ${res.status}`);
+      }
+      const data = await res.json();
+      setScenarios(data.scenarios);
+    } catch (err) {
+      setScenariosError(err instanceof Error ? err.message : "Failed to generate scenarios");
+    } finally {
+      setLoadingScenarios(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadScenarios();
+  }, [loadScenarios]);
 
   const scenario = scenarios[currentIndex];
   const total = scenarios.length;
@@ -46,39 +83,23 @@ export default function SimulatorPage() {
     async (userChoice: Choice, sc: Scenario) => {
       setChoice(userChoice);
       setLoading(true);
+      setAnalysisError(null);
       try {
         const res = await fetch("/api/simulate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scenario: sc, userChoice }),
         });
-        if (!res.ok) throw new Error("API error");
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.details || `API error: ${res.status}`);
+        }
         const data = await res.json();
         const correct = userChoice === sc.answer;
         if (correct) setScore((s) => s + 1);
         setAnalysis({ correct, ...data });
-      } catch {
-        const correct = userChoice === sc.answer;
-        if (correct) setScore((s) => s + 1);
-        setAnalysis({
-          correct,
-          explanation:
-            sc.answer === "scam"
-              ? "This message is a scam attempt. Suspicious links and urgent language are clear warning signs."
-              : "This message appears legitimate.",
-          redFlags:
-            sc.answer === "scam"
-              ? ["Suspicious link", "Urgent language", "Requests personal info"]
-              : [],
-          tactic:
-            sc.answer === "scam"
-              ? "Uses fear and urgency to pressure the victim"
-              : "None",
-          advice:
-            sc.answer === "scam"
-              ? "Never click suspicious links. Always verify with the official source."
-              : "This type of notification is normal, but always verify the source.",
-        });
+      } catch (err) {
+        setAnalysisError(err instanceof Error ? err.message : "AI analysis failed");
       } finally {
         setLoading(false);
       }
@@ -91,6 +112,7 @@ export default function SimulatorPage() {
       setCurrentIndex((i) => i + 1);
       setChoice(null);
       setAnalysis(null);
+      setAnalysisError(null);
     } else {
       setShowResults(true);
     }
@@ -100,9 +122,65 @@ export default function SimulatorPage() {
     setCurrentIndex(0);
     setChoice(null);
     setAnalysis(null);
+    setAnalysisError(null);
     setScore(0);
     setShowResults(false);
+    loadScenarios();
   };
+
+  // --------------- Loading scenarios ---------------
+  if (loadingScenarios) {
+    return (
+      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-6 text-center"
+        >
+          <div className="relative h-20 w-20">
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-cyber-border border-t-cyber-cyan" />
+            <Zap className="absolute inset-4 h-12 w-12 text-cyber-cyan" />
+          </div>
+          <div>
+            <h2 className="mb-2 text-xl font-bold">{t("sim.title")}</h2>
+            <p className="text-sm text-cyber-text-dim">
+              {t("sim.generating") || "Generating scenarios with AI..."}
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // --------------- Scenario generation error ---------------
+  if (scenarioError) {
+    return (
+      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-lg rounded-2xl border border-cyber-red/30 bg-cyber-red/5 p-8 text-center sm:p-10"
+        >
+          <AlertTriangle className="mx-auto mb-6 h-12 w-12 text-cyber-red" />
+          <h2 className="mb-3 text-xl font-bold text-cyber-red">
+            {t("sim.error") || "Error"}
+          </h2>
+          <p className="mb-6 text-sm leading-relaxed text-cyber-text-dim">
+            {scenarioError}
+          </p>
+          <button
+            onClick={loadScenarios}
+            className="mx-auto flex items-center gap-2 rounded-xl bg-cyber-cyan px-6 py-3 font-bold text-cyber-darker transition hover:bg-cyber-cyan/80"
+          >
+            <RotateCcw className="h-5 w-5" />
+            {t("sim.retry") || "Retry"}
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!scenario) return null;
 
   const diffLabel =
     scenario.difficulty === "easy"
@@ -307,6 +385,37 @@ export default function SimulatorPage() {
                   <p className="text-sm text-cyber-text-dim">
                     {t("sim.analyzing")}
                   </p>
+                </motion.div>
+              ) : analysisError ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-5"
+                >
+                  <div className="rounded-2xl border border-cyber-red/40 bg-cyber-red/10 p-6 sm:p-8">
+                    <div className="flex items-center gap-4">
+                      <AlertTriangle className="h-8 w-8 shrink-0 text-cyber-red" />
+                      <div>
+                        <p className="text-lg font-bold text-cyber-red">
+                          {t("sim.error") || "Error"}
+                        </p>
+                        <p className="mt-2 text-sm text-cyber-text-dim">
+                          {analysisError}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setChoice(null);
+                      setAnalysisError(null);
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-cyber-border bg-cyber-card py-4 text-base font-bold text-cyber-text transition-all hover:bg-cyber-border/30"
+                  >
+                    <RotateCcw className="h-5 w-5" />
+                    {t("sim.retry") || "Try again"}
+                  </button>
                 </motion.div>
               ) : analysis ? (
                 <motion.div

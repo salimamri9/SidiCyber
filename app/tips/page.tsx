@@ -214,7 +214,7 @@ export default function TipsPage() {
             {t("tips.learnMore")}
           </h3>
           <p className="mb-6 text-sm text-cyber-text-dim">
-            {t("dash.noActivity")}
+            {t("tips.ctaDesc")}
           </p>
           <a
             href="/simulator"

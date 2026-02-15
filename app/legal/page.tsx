@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Scale,
@@ -11,21 +11,55 @@ import {
   RotateCcw,
   Trophy,
   Gavel,
+  AlertTriangle,
 } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
-import { legalQuestions } from "@/lib/legal-questions";
+import { useI18n, type Locale } from "@/lib/i18n";
+
+interface LegalQuestion {
+  id: number;
+  question: Record<Locale, string>;
+  options: { label: Record<Locale, string>; correct: boolean }[];
+  explanation: Record<Locale, string>;
+  law: string;
+}
 
 export default function LegalPage() {
   const { t, locale } = useI18n();
   const Arrow = locale === "ar" ? ChevronLeft : ChevronRight;
+
+  const [questions, setQuestions] = useState<LegalQuestion[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
 
-  const question = legalQuestions[currentIndex];
-  const total = legalQuestions.length;
+  const loadQuestions = useCallback(async () => {
+    setLoadingQuestions(true);
+    setQuestionsError(null);
+    try {
+      const res = await fetch("/api/generate-questions", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.details || `API error: ${res.status}`);
+      }
+      const data = await res.json();
+      setQuestions(data.questions);
+    } catch (err) {
+      setQuestionsError(err instanceof Error ? err.message : "Failed to generate questions");
+    } finally {
+      setLoadingQuestions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions]);
+
+  const question = questions[currentIndex];
+  const total = questions.length;
   const answered = selectedOption !== null;
 
   const selectOption = (index: number) => {
@@ -48,8 +82,64 @@ export default function LegalPage() {
     setSelectedOption(null);
     setScore(0);
     setShowResults(false);
+    loadQuestions();
   };
 
+  // --------------- Loading questions ---------------
+  if (loadingQuestions) {
+    return (
+      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-6 text-center"
+        >
+          <div className="relative h-20 w-20">
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-cyber-border border-t-cyber-purple" />
+            <Scale className="absolute inset-4 h-12 w-12 text-cyber-purple" />
+          </div>
+          <div>
+            <h2 className="mb-2 text-xl font-bold">{t("legal.title")}</h2>
+            <p className="text-sm text-cyber-text-dim">
+              {t("legal.generating")}
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // --------------- Error ---------------
+  if (questionsError) {
+    return (
+      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-lg rounded-2xl border border-cyber-red/30 bg-cyber-red/5 p-8 text-center sm:p-10"
+        >
+          <AlertTriangle className="mx-auto mb-6 h-12 w-12 text-cyber-red" />
+          <h2 className="mb-3 text-xl font-bold text-cyber-red">
+            {t("legal.error")}
+          </h2>
+          <p className="mb-6 text-sm leading-relaxed text-cyber-text-dim">
+            {questionsError}
+          </p>
+          <button
+            onClick={loadQuestions}
+            className="mx-auto flex items-center gap-2 rounded-xl bg-cyber-purple px-6 py-3 font-bold text-white transition hover:bg-cyber-purple/80"
+          >
+            <RotateCcw className="h-5 w-5" />
+            {t("legal.retry")}
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!question) return null;
+
+  // --------------- Results screen ---------------
   if (showResults) {
     const pct = Math.round((score / total) * 100);
     return (
@@ -57,9 +147,9 @@ export default function LegalPage() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="mx-auto w-full max-w-[800px] px-6 sm:px-12 md:px-16"
+          className="w-full max-w-lg"
         >
-          <div className="rounded-2xl border border-cyber-border bg-cyber-card p-10 sm:p-14 text-center">
+          <div className="rounded-2xl border border-cyber-border bg-cyber-card p-10 text-center sm:p-14">
             <Trophy
               className={`mx-auto mb-4 h-14 w-14 sm:h-16 sm:w-16 ${
                 pct >= 70 ? "text-cyber-green" : "text-cyber-yellow"
@@ -98,6 +188,7 @@ export default function LegalPage() {
     );
   }
 
+  // --------------- Quiz ---------------
   return (
     <div className="cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
       <div className="my-auto w-full max-w-3xl">

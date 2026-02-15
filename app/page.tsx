@@ -14,7 +14,7 @@ import {
   Lock,
   Eye,
   BookOpen,
-  LayoutDashboard,
+  Newspaper,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -62,13 +62,13 @@ export default function Home() {
       iconColor: "text-cyber-purple",
     },
     {
-      icon: BookOpen,
-      title: t("dash.tipsModule"),
-      description: t("tips.subtitle"),
-      href: "/tips",
-      borderHover: "hover:border-green-500/40",
-      iconBg: "bg-green-500/10",
-      iconColor: "text-cyber-green",
+      icon: Newspaper,
+      title: t("news.title"),
+      description: t("news.subtitle"),
+      href: "/news",
+      borderHover: "hover:border-red-500/40",
+      iconBg: "bg-red-500/10",
+      iconColor: "text-cyber-red",
     },
   ];
 
