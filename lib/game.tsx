@@ -75,13 +75,21 @@ const GameContext = createContext<GameContextType>({
 });
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<GameState>({
-    totalXP: 0,
-    currentStreak: 0,
-    bestStreak: 0,
-    correctAnswers: 0,
-    totalAnswers: 0,
-    sessionXP: 0,
+  const [state, setState] = useState<GameState>(() => {
+    // Hydrate totalXP from localStorage
+    let savedXP = 0;
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("cyberguard-xp");
+      if (stored) savedXP = parseInt(stored, 10) || 0;
+    }
+    return {
+      totalXP: savedXP,
+      currentStreak: 0,
+      bestStreak: 0,
+      correctAnswers: 0,
+      totalAnswers: 0,
+      sessionXP: 0,
+    };
   });
 
   const rank = getRank(state.totalXP);
@@ -98,11 +106,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
       basePoints * difficultyMultiplier[difficulty] * (1 + streak * 0.1) + speedBonus
     );
 
-    setState((prev) => ({
-      ...prev,
-      totalXP: prev.totalXP + xp,
-      sessionXP: prev.sessionXP + xp,
-    }));
+    setState((prev) => {
+      const newTotal = prev.totalXP + xp;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cyberguard-xp", String(newTotal));
+      }
+      return {
+        ...prev,
+        totalXP: newTotal,
+        sessionXP: prev.sessionXP + xp,
+      };
+    });
 
     return xp;
   }, [state.currentStreak]);

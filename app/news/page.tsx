@@ -87,7 +87,7 @@ export default function NewsPage() {
   // --------------- Loading ---------------
   if (loading) {
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+      <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -109,7 +109,7 @@ export default function NewsPage() {
   // --------------- Error ---------------
   if (error) {
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+      <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -132,7 +132,7 @@ export default function NewsPage() {
 
   // --------------- News list ---------------
   return (
-    <div className="flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
+    <div className="cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
       <div className="my-auto w-full max-w-3xl">
         {/* Header */}
         <motion.div

@@ -66,7 +66,8 @@ export function GameResults({
   const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
   const showConfetti = accuracy >= 70;
 
-  const accent = mode === "simulator" ? "cyber-cyan" : "cyber-purple";
+  const accentText = mode === "simulator" ? "text-cyber-cyan" : "text-cyber-purple";
+  const accentIconClass = mode === "simulator" ? "text-cyber-cyan" : "text-cyber-purple";
   const buttonClass =
     mode === "simulator"
       ? "bg-cyber-cyan text-cyber-darker hover:bg-cyber-cyan/80"
@@ -76,7 +77,7 @@ export function GameResults({
   const rankLabel = t(`game.${rank}`);
 
   return (
-    <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+    <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
       <ConfettiBurst trigger={showConfetti} />
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -104,29 +105,29 @@ export function GameResults({
           {/* Stats grid */}
           <div className="mb-8 grid grid-cols-2 gap-4">
             <div className="rounded-xl border border-cyber-border bg-cyber-darker p-4">
-              <Zap className={`mx-auto mb-2 h-5 w-5 text-${accent}`} />
-              <div className={`text-2xl font-black text-${accent}`}>
+              <Zap className={`mx-auto mb-2 h-5 w-5 ${accentIconClass}`} />
+              <div className={`text-2xl font-black ${accentText}`}>
                 <AnimatedNumber value={sessionXP} />
               </div>
               <div className="text-[11px] text-cyber-text-dim">{t("game.xpEarned")}</div>
             </div>
             <div className="rounded-xl border border-cyber-border bg-cyber-darker p-4">
-              <Target className={`mx-auto mb-2 h-5 w-5 text-${accent}`} />
+              <Target className={`mx-auto mb-2 h-5 w-5 ${accentIconClass}`} />
               <div className={`text-2xl font-black ${accuracy >= 70 ? "text-cyber-green" : accuracy >= 40 ? "text-cyber-yellow" : "text-cyber-red"}`}>
                 <AnimatedNumber value={accuracy} />%
               </div>
               <div className="text-[11px] text-cyber-text-dim">{t("game.accuracy")}</div>
             </div>
             <div className="rounded-xl border border-cyber-border bg-cyber-darker p-4">
-              <Flame className={`mx-auto mb-2 h-5 w-5 text-${accent}`} />
-              <div className={`text-2xl font-black text-${accent}`}>
+              <Flame className={`mx-auto mb-2 h-5 w-5 ${accentIconClass}`} />
+              <div className={`text-2xl font-black ${accentText}`}>
                 <AnimatedNumber value={bestStreak} />
               </div>
               <div className="text-[11px] text-cyber-text-dim">{t("game.bestStreak")}</div>
             </div>
             <div className="rounded-xl border border-cyber-border bg-cyber-darker p-4">
-              <Trophy className={`mx-auto mb-2 h-5 w-5 text-${accent}`} />
-              <div className={`text-2xl font-black text-${accent}`}>
+              <Trophy className={`mx-auto mb-2 h-5 w-5 ${accentIconClass}`} />
+              <div className={`text-2xl font-black ${accentText}`}>
                 <AnimatedNumber value={totalXP} />
               </div>
               <div className="text-[11px] text-cyber-text-dim">{t("game.totalXP")}</div>

@@ -25,6 +25,7 @@ export function Navbar() {
     { href: "/simulator", label: t("nav.simulator") },
     { href: "/analyzer", label: t("nav.analyzer") },
     { href: "/legal", label: t("nav.legal") },
+    { href: "/news", label: t("nav.news") },
     { href: "/tips", label: t("nav.tips") },
   ];
 

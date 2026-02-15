@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
@@ -94,7 +95,7 @@ export default function TipsPage() {
   ];
 
   return (
-    <div className="flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
+    <div className="cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
       <div className="my-auto w-full max-w-3xl">
         {/* Header */}
         <motion.div
@@ -216,12 +217,12 @@ export default function TipsPage() {
           <p className="mb-6 text-sm text-cyber-text-dim">
             {t("tips.ctaDesc")}
           </p>
-          <a
+          <Link
             href="/simulator"
             className="inline-flex items-center gap-2 rounded-xl bg-cyber-green px-6 py-3 font-bold text-cyber-darker transition hover:bg-cyber-green/80"
           >
             {t("hero.cta")}
-          </a>
+          </Link>
         </motion.div>
       </div>
     </div>

@@ -39,7 +39,7 @@ export default function RootLayout({
           <GameProvider>
             <DirUpdater />
             <Navbar />
-            <main className="flex min-h-screen flex-col pt-20">{children}</main>
+            <main className="flex min-h-screen flex-col pt-16">{children}</main>
           </GameProvider>
         </I18nProvider>
       </body>

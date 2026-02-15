@@ -545,7 +545,24 @@ const I18nContext = createContext<I18nContextType>({
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("ar");
+  const [locale, setLocaleState] = useState<Locale>("ar");
+
+  // Hydrate from localStorage on mount
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("cyberguard-locale") as Locale | null;
+      if (saved && ["ar", "en", "fr"].includes(saved)) {
+        setLocaleState(saved);
+      }
+    }
+  });
+
+  const setLocale = useCallback((l: Locale) => {
+    setLocaleState(l);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cyberguard-locale", l);
+    }
+  }, []);
 
   const t = useCallback(
     (key: string) => translations[locale][key] || translations.ar[key] || key,

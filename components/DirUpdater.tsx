@@ -9,10 +9,6 @@ export function DirUpdater() {
   useEffect(() => {
     document.documentElement.dir = dir;
     document.documentElement.lang = locale;
-    document.body.style.fontFamily =
-      locale === "ar"
-        ? "var(--font-cairo), sans-serif"
-        : "var(--font-inter), sans-serif";
   }, [locale, dir]);
 
   return null;
