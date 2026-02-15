@@ -296,7 +296,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4 text-cyber-cyan" />
             <span className="text-sm font-semibold text-cyber-text-dim">
-              CyberGuard Tunisia
+              SidiCyber Tunisia
             </span>
           </div>
           <p className="text-xs text-cyber-text-dim/60 text-center sm:text-start">

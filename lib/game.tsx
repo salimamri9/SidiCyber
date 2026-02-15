@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 export type Rank = "rookie" | "agent" | "expert" | "elite";
 export type Difficulty = "easy" | "medium" | "hard";
@@ -75,22 +75,25 @@ const GameContext = createContext<GameContextType>({
 });
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<GameState>(() => {
-    // Hydrate totalXP from localStorage
-    let savedXP = 0;
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("cyberguard-xp");
-      if (stored) savedXP = parseInt(stored, 10) || 0;
-    }
-    return {
-      totalXP: savedXP,
-      currentStreak: 0,
-      bestStreak: 0,
-      correctAnswers: 0,
-      totalAnswers: 0,
-      sessionXP: 0,
-    };
+  const [state, setState] = useState<GameState>({
+    totalXP: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    correctAnswers: 0,
+    totalAnswers: 0,
+    sessionXP: 0,
   });
+
+  // Hydrate totalXP from localStorage after mount to avoid SSR mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem("SidiCyber-xp");
+    if (stored) {
+      const savedXP = parseInt(stored, 10) || 0;
+      if (savedXP > 0) {
+        setState((prev) => ({ ...prev, totalXP: savedXP }));
+      }
+    }
+  }, []);
 
   const rank = getRank(state.totalXP);
   const currentThreshold = rankThresholds[rank];
@@ -109,7 +112,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const newTotal = prev.totalXP + xp;
       if (typeof window !== "undefined") {
-        localStorage.setItem("cyberguard-xp", String(newTotal));
+        localStorage.setItem("SidiCyber-xp", String(newTotal));
       }
       return {
         ...prev,

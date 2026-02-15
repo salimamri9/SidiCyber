@@ -550,7 +550,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   // Hydrate from localStorage on mount
   useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("cyberguard-locale") as Locale | null;
+      const saved = localStorage.getItem("SidiCyber-locale") as Locale | null;
       if (saved && ["ar", "en", "fr"].includes(saved)) {
         setLocaleState(saved);
       }
@@ -560,7 +560,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     if (typeof window !== "undefined") {
-      localStorage.setItem("cyberguard-locale", l);
+      localStorage.setItem("SidiCyber-locale", l);
     }
   }, []);
 

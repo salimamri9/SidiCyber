@@ -19,7 +19,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CyberGuard Tunisia",
+  title: "SidiCyber Tunisia",
   description:
     "AI-Powered Cybersecurity Training Simulator for Tunisian citizens",
 };

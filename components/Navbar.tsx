@@ -36,7 +36,7 @@ export function Navbar() {
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Shield className="h-6 w-6 text-cyber-cyan" />
           <span className="text-base font-bold text-cyber-cyan">
-            CyberGuard
+            SidiCyber
           </span>
         </Link>
 
