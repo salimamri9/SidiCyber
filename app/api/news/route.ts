@@ -1,6 +1,10 @@
 import { generateObject } from "ai";
 import { model } from "@/lib/azure";
 import { z } from "zod";
+import { getCached, setCache } from "@/lib/cache";
+
+const CACHE_KEY = "news";
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 async function fetchNewsHeadlines(): Promise<string[]> {
   const queries = [
@@ -38,6 +42,13 @@ export async function POST() {
   console.log("\n══════════════════════════════════════════");
   console.log("📰 [NEWS API] Request received");
   console.log("══════════════════════════════════════════");
+
+  const cached = getCached(CACHE_KEY);
+  if (cached) {
+    console.log("✅ [NEWS API] Returning cached result");
+    console.log("══════════════════════════════════════════\n");
+    return Response.json(cached);
+  }
 
   try {
     const headlines = await fetchNewsHeadlines();
@@ -113,6 +124,7 @@ ${headlinesContext}
     console.log("\n✅ [NEWS API] Generated", result.object.articles.length, "articles");
     console.log("══════════════════════════════════════════\n");
 
+    setCache(CACHE_KEY, result.object, CACHE_TTL);
     return Response.json(result.object);
   } catch (error) {
     console.error("\n❌ [NEWS API] Error:", error);

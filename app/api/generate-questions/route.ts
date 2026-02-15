@@ -1,11 +1,22 @@
 import { generateObject } from "ai";
 import { model } from "@/lib/azure";
 import { z } from "zod";
+import { getCached, setCache } from "@/lib/cache";
+
+const CACHE_KEY = "questions";
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 export async function POST() {
   console.log("\n══════════════════════════════════════════");
   console.log("⚖️ [GENERATE QUESTIONS] Request received");
   console.log("══════════════════════════════════════════");
+
+  const cached = getCached(CACHE_KEY);
+  if (cached) {
+    console.log("✅ [GENERATE QUESTIONS] Returning cached result");
+    console.log("══════════════════════════════════════════\n");
+    return Response.json(cached);
+  }
 
   try {
     const result = await generateObject({
@@ -71,6 +82,7 @@ export async function POST() {
     console.log("\n✅ [GENERATE QUESTIONS] Generated", result.object.questions.length, "questions");
     console.log("══════════════════════════════════════════\n");
 
+    setCache(CACHE_KEY, result.object, CACHE_TTL);
     return Response.json(result.object);
   } catch (error) {
     console.error("\n❌ [GENERATE QUESTIONS] Error:", error);

@@ -21,7 +21,6 @@ export function Navbar() {
 
   const links = [
     { href: "/", label: t("nav.home") },
-    { href: "/news", label: t("nav.news") },
     { href: "/simulator", label: t("nav.simulator") },
     { href: "/analyzer", label: t("nav.analyzer") },
     { href: "/legal", label: t("nav.legal") },
