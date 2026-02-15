@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 export type Rank = "rookie" | "agent" | "expert" | "elite";
 export type Difficulty = "easy" | "medium" | "hard";
@@ -84,6 +84,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     sessionXP: 0,
   });
 
+  // Hydrate totalXP from localStorage after mount to avoid SSR mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem("SidiCyber-xp");
+    if (stored) {
+      const savedXP = parseInt(stored, 10) || 0;
+      if (savedXP > 0) {
+        setState((prev) => ({ ...prev, totalXP: savedXP }));
+      }
+    }
+  }, []);
+
   const rank = getRank(state.totalXP);
   const currentThreshold = rankThresholds[rank];
   const nextThreshold = nextRankThresholds[rank];
@@ -98,11 +109,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
       basePoints * difficultyMultiplier[difficulty] * (1 + streak * 0.1) + speedBonus
     );
 
-    setState((prev) => ({
-      ...prev,
-      totalXP: prev.totalXP + xp,
-      sessionXP: prev.sessionXP + xp,
-    }));
+    setState((prev) => {
+      const newTotal = prev.totalXP + xp;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("SidiCyber-xp", String(newTotal));
+      }
+      return {
+        ...prev,
+        totalXP: newTotal,
+        sessionXP: prev.sessionXP + xp,
+      };
+    });
 
     return xp;
   }, [state.currentStreak]);

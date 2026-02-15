@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
@@ -32,6 +33,7 @@ export default function TipsPage() {
 
   const tips = [
     {
+      id: "passwords",
       icon: Lock,
       title: t("tips.passwords"),
       description: t("tips.passwordsDesc"),
@@ -42,6 +44,7 @@ export default function TipsPage() {
       iconBg: "bg-cyber-cyan/20",
     },
     {
+      id: "links",
       icon: Link2,
       title: t("tips.links"),
       description: t("tips.linksDesc"),
@@ -52,6 +55,7 @@ export default function TipsPage() {
       iconBg: "bg-cyber-red/20",
     },
     {
+      id: "twoFactor",
       icon: ShieldCheck,
       title: t("tips.twoFactor"),
       description: t("tips.twoFactorDesc"),
@@ -62,6 +66,7 @@ export default function TipsPage() {
       iconBg: "bg-cyber-green/20",
     },
     {
+      id: "wifi",
       icon: Wifi,
       title: t("tips.wifi"),
       description: t("tips.wifiDesc"),
@@ -72,6 +77,7 @@ export default function TipsPage() {
       iconBg: "bg-cyber-yellow/20",
     },
     {
+      id: "socialEng",
       icon: Users,
       title: t("tips.socialEng"),
       description: t("tips.socialEngDesc"),
@@ -82,6 +88,7 @@ export default function TipsPage() {
       iconBg: "bg-cyber-purple/20",
     },
     {
+      id: "privacy",
       icon: Eye,
       title: t("tips.privacy"),
       description: t("tips.privacyDesc"),
@@ -94,8 +101,8 @@ export default function TipsPage() {
   ];
 
   return (
-    <div className="flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
-      <div className="my-auto w-full max-w-3xl">
+    <div className="cyber-grid flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
+      <div className="w-full max-w-3xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -123,7 +130,7 @@ export default function TipsPage() {
           {tips.map((tip, index) => {
             const isExpanded = expandedIndex === index;
             return (
-              <motion.div key={tip.title} variants={item}>
+              <motion.div key={tip.id} variants={item}>
                 <div
                   className={`overflow-hidden rounded-2xl border transition-all ${
                     isExpanded ? tip.border : "border-cyber-border"
@@ -216,12 +223,12 @@ export default function TipsPage() {
           <p className="mb-6 text-sm text-cyber-text-dim">
             {t("tips.ctaDesc")}
           </p>
-          <a
+          <Link
             href="/simulator"
             className="inline-flex items-center gap-2 rounded-xl bg-cyber-green px-6 py-3 font-bold text-cyber-darker transition hover:bg-cyber-green/80"
           >
             {t("hero.cta")}
-          </a>
+          </Link>
         </motion.div>
       </div>
     </div>

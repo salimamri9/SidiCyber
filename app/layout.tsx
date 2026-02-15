@@ -19,7 +19,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CyberGuard Tunisia",
+  title: "SidiCyber Tunisia",
   description:
     "AI-Powered Cybersecurity Training Simulator for Tunisian citizens",
 };
@@ -39,7 +39,7 @@ export default function RootLayout({
           <GameProvider>
             <DirUpdater />
             <Navbar />
-            <main className="flex min-h-screen flex-col pt-20">{children}</main>
+            <main className="flex min-h-screen flex-col pt-16">{children}</main>
           </GameProvider>
         </I18nProvider>
       </body>

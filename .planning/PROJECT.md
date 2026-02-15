@@ -1,4 +1,4 @@
-# CyberGuard Tunisia
+# SidiCyber Tunisia
 
 ## Overview
 AI-Powered Cybersecurity Training Simulator for Tunisian citizens. Hackathon project for "Defend the Digital Frontier" challenge.

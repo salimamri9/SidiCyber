@@ -14,17 +14,18 @@ import {
   Lock,
   Eye,
   BookOpen,
+  ArrowUpRight,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.12 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 export default function Home() {
@@ -34,95 +35,103 @@ export default function Home() {
 
   const features = [
     {
+      id: "simulator",
       icon: Smartphone,
       title: t("features.sim.title"),
       description: t("features.sim.desc"),
       href: "/simulator",
-      borderHover: "hover:border-cyan-500/40",
-      iconBg: "bg-cyan-500/10",
+      accent: "cyber-cyan",
+      iconBg: "bg-cyber-cyan/10",
       iconColor: "text-cyber-cyan",
+      hoverBorder: "hover:border-cyber-cyan/30",
     },
     {
+      id: "analyzer",
       icon: Search,
       title: t("features.analyzer.title"),
       description: t("features.analyzer.desc"),
       href: "/analyzer",
-      borderHover: "hover:border-yellow-500/40",
-      iconBg: "bg-yellow-500/10",
+      accent: "cyber-yellow",
+      iconBg: "bg-cyber-yellow/10",
       iconColor: "text-cyber-yellow",
+      hoverBorder: "hover:border-cyber-yellow/30",
     },
     {
+      id: "legal",
       icon: Scale,
       title: t("features.legal.title"),
       description: t("features.legal.desc"),
       href: "/legal",
-      borderHover: "hover:border-purple-500/40",
-      iconBg: "bg-purple-500/10",
+      accent: "cyber-purple",
+      iconBg: "bg-cyber-purple/10",
       iconColor: "text-cyber-purple",
+      hoverBorder: "hover:border-cyber-purple/30",
     },
     {
+      id: "tips",
       icon: BookOpen,
       title: t("tips.title"),
       description: t("tips.subtitle"),
       href: "/tips",
-      borderHover: "hover:border-green-500/40",
-      iconBg: "bg-green-500/10",
+      accent: "cyber-green",
+      iconBg: "bg-cyber-green/10",
       iconColor: "text-cyber-green",
+      hoverBorder: "hover:border-cyber-green/30",
     },
   ];
 
   const threats = [
-    { icon: Smartphone, label: t("hero.threat.sms") },
-    { icon: Wifi, label: t("hero.threat.wifi") },
-    { icon: Lock, label: t("hero.threat.password") },
-    { icon: Eye, label: t("hero.threat.privacy") },
-    { icon: AlertTriangle, label: t("hero.threat.fake") },
+    { id: "sms", icon: Smartphone, label: t("hero.threat.sms") },
+    { id: "wifi", icon: Wifi, label: t("hero.threat.wifi") },
+    { id: "password", icon: Lock, label: t("hero.threat.password") },
+    { id: "privacy", icon: Eye, label: t("hero.threat.privacy") },
+    { id: "fake", icon: AlertTriangle, label: t("hero.threat.fake") },
   ];
 
   return (
     <div className="cyber-grid">
       {/* ── Hero ── */}
-      <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-start pt-22 sm:pt-10 lg:justify-center lg:pt-0 overflow-hidden px-5 sm:px-8">
         {/* Background blurs */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 h-72 w-72 rounded-full bg-cyber-cyan/5 blur-[100px] sm:h-[500px] sm:w-[500px] sm:blur-[150px]" />
-          <div className="absolute bottom-1/4 left-1/4 h-72 w-72 rounded-full bg-cyber-purple/5 blur-[100px] sm:h-[400px] sm:w-[400px] sm:blur-[150px]" />
+          <div className="absolute top-1/4 right-1/4 h-64 w-64 rounded-full bg-cyber-cyan/4 blur-[120px] sm:h-[420px] sm:w-[420px]" />
+          <div className="absolute bottom-1/3 left-1/4 h-64 w-64 rounded-full bg-cyber-purple/4 blur-[120px] sm:h-[350px] sm:w-[350px]" />
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="page-container relative z-10 flex flex-col items-center text-center"
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="relative z-10 mx-auto w-full max-w-5xl flex flex-col items-center text-center"
         >
-          {/* Shield */}
+          {/* Shield icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", bounce: 0.4, delay: 0.2 }}
-            className="relative mb-10 sm:mb-14"
+            transition={{ type: "spring", bounce: 0.35, delay: 0.15 }}
+            className="relative mb-8 sm:mb-10"
           >
-            <div className="relative rounded-full border border-cyber-cyan/20 bg-cyber-cyan/5 p-7 sm:p-10">
-              <Shield className="h-14 w-14 text-cyber-cyan sm:h-20 sm:w-20" />
-              <div className="absolute inset-0 animate-pulse-glow rounded-full border border-cyber-cyan/30" />
+            <div className="relative rounded-2xl border border-cyber-cyan/15 bg-cyber-cyan/5 p-5 sm:p-7">
+              <Shield className="h-10 w-10 text-cyber-cyan sm:h-14 sm:w-14" />
+              <div className="absolute inset-0 animate-pulse-glow rounded-2xl border border-cyber-cyan/20" />
             </div>
           </motion.div>
 
           {/* Alert badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8 sm:mb-10 flex items-center gap-2.5 rounded-full border border-cyber-red/30 bg-cyber-red/10 px-5 py-2.5"
+            transition={{ delay: 0.35 }}
+            className="mb-6 flex items-center gap-2 rounded-full border border-cyber-red/20 bg-cyber-red/8 px-4 py-2"
           >
-            <AlertTriangle className="h-4 w-4 shrink-0 text-cyber-red" />
-            <span className="text-xs font-semibold text-cyber-red sm:text-sm">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-cyber-red" />
+            <span className="text-xs font-semibold text-cyber-red">
               {t("hero.alert")}
             </span>
           </motion.div>
 
           {/* Headline */}
-          <h1 className="mb-6 max-w-4xl text-4xl font-black leading-[1.15] sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-5 max-w-3xl text-3xl font-black leading-[1.15] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
             <span className="text-cyber-text">{t("hero.title1")}</span>
             <br />
             <span className="text-glow-cyan text-cyber-cyan">
@@ -131,27 +140,27 @@ export default function Home() {
           </h1>
 
           {/* Subtitle */}
-          <p className="mb-12 sm:mb-16 max-w-xl text-base leading-relaxed text-cyber-text-dim sm:max-w-2xl sm:text-lg md:text-xl">
+          <p className="mb-10 max-w-lg text-sm leading-relaxed text-cyber-text-dim sm:max-w-xl sm:text-base md:text-lg">
             {t("hero.subtitle")}
           </p>
 
           {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex w-full flex-col gap-5 sm:w-auto sm:flex-row sm:gap-6"
+            transition={{ delay: 0.5 }}
+            className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4"
           >
             <Link
               href="/simulator"
-              className="glow-cyan group flex items-center justify-center gap-2 rounded-2xl bg-cyber-cyan px-8 py-4 text-base font-bold text-cyber-darker transition-all hover:bg-cyber-cyan/90 hover:scale-105 sm:px-10 sm:py-5 sm:text-lg"
+              className="glow-cyan group flex items-center justify-center gap-2 rounded-xl bg-cyber-cyan px-7 py-3.5 text-sm font-bold text-cyber-darker transition-all hover:bg-cyber-cyan/90 hover:scale-[1.02] sm:px-8 sm:py-4 sm:text-base"
             >
               {t("hero.cta")}
-              <Arrow className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+              <Arrow className="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
             </Link>
             <Link
               href="/analyzer"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-cyber-border px-8 py-4 text-base font-semibold text-cyber-text transition-all hover:border-cyber-cyan/50 hover:bg-cyber-cyan/5 sm:px-10 sm:py-5 sm:text-lg"
+              className="flex items-center justify-center gap-2 rounded-xl border border-cyber-border px-7 py-3.5 text-sm font-semibold text-cyber-text transition-all hover:border-cyber-cyan/30 hover:bg-cyber-cyan/5 sm:px-8 sm:py-4 sm:text-base"
             >
               {t("hero.cta2")}
             </Link>
@@ -163,16 +172,16 @@ export default function Home() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="absolute bottom-12 sm:bottom-16 flex flex-wrap justify-center gap-3 px-6 sm:gap-4"
+          className="absolute bottom-0 flex w-full flex-wrap justify-center gap-3 px-6 sm:bottom-0 sm:gap-4 md:px-12"
         >
           {threats.map((threat) => (
             <motion.div
-              key={threat.label}
+              key={threat.id}
               variants={item}
-              className="flex items-center gap-2.5 rounded-full border border-cyber-border bg-cyber-card/60 px-5 py-2.5 backdrop-blur-sm sm:px-6 sm:py-3"
+              className="group flex min-w-[130px] items-center justify-center gap-2 rounded-full border border-cyber-border/40 bg-cyber-card/30 px-4 py-2.5 backdrop-blur-md transition-all hover:border-cyber-red/40 hover:bg-cyber-red/5 sm:min-w-[150px] sm:px-5 sm:py-3 lg:min-w-[170px]"
             >
-              <threat.icon className="h-3.5 w-3.5 text-cyber-red sm:h-4 sm:w-4" />
-              <span className="text-[11px] font-semibold text-cyber-text-dim sm:text-xs">
+              <threat.icon className="h-4 w-4 text-cyber-red opacity-80 transition-transform group-hover:scale-110" />
+              <span className="whitespace-nowrap text-[10px] font-bold text-cyber-text-dim transition-colors group-hover:text-cyber-text sm:text-xs">
                 {threat.label}
               </span>
             </motion.div>
@@ -181,18 +190,18 @@ export default function Home() {
       </section>
 
       {/* ── Features ── */}
-      <section className="py-24 sm:py-32">
-        <div className="page-container">
+      <section className="py-12 sm:py-16 px-5 sm:px-8">
+        <div className="mx-auto w-full max-w-5xl">
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-12 text-center"
+            className="mb-12 text-center sm:mb-16"
           >
-            <h2 className="mb-6 text-2xl font-black sm:text-3xl lg:text-4xl">
+            <h2 className="mb-4 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
               {t("features.title")}
             </h2>
-            <p className="text-base text-cyber-text-dim sm:text-lg">
+            <p className="mx-auto max-w-md text-sm text-cyber-text-dim sm:text-base">
               {t("features.subtitle")}
             </p>
           </motion.div>
@@ -202,30 +211,33 @@ export default function Home() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="grid gap-8 sm:grid-cols-2"
+            className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6"
           >
             {features.map((feature) => (
-              <motion.div key={feature.title} variants={item}>
+              <motion.div key={feature.id} variants={item}>
                 <Link
                   href={feature.href}
-                  className={`group block h-full rounded-2xl border border-cyber-border bg-cyber-card p-8 sm:p-10 transition-all ${feature.borderHover}`}
+                  className={`card-hover group flex h-full flex-col rounded-2xl border border-cyber-border bg-cyber-card p-6 transition-all sm:p-8 ${feature.hoverBorder}`}
                 >
-                  <div
-                    className={`mb-8 inline-flex rounded-xl ${feature.iconBg} p-4 sm:p-5`}
-                  >
-                    <feature.icon
-                      className={`h-7 w-7 sm:h-8 sm:w-8 ${feature.iconColor}`}
-                    />
+                  <div className="mb-5 flex items-start justify-between">
+                    <div
+                      className={`inline-flex rounded-xl ${feature.iconBg} p-3.5`}
+                    >
+                      <feature.icon
+                        className={`h-6 w-6 ${feature.iconColor}`}
+                      />
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-cyber-text-dim opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
-                  <h3 className="mb-5 text-lg font-bold sm:text-xl">
+                  <h3 className="mb-2.5 text-base font-bold sm:text-lg">
                     {feature.title}
                   </h3>
-                  <p className="text-sm leading-relaxed text-cyber-text-dim sm:text-base">
+                  <p className="text-sm leading-relaxed text-cyber-text-dim">
                     {feature.description}
                   </p>
-                  <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-cyber-cyan opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="mt-auto pt-5 flex items-center gap-1.5 text-xs font-semibold text-cyber-text-dim opacity-0 transition-opacity group-hover:opacity-100">
                     <span>{t("features.start")}</span>
-                    <Arrow className="h-4 w-4" />
+                    <Arrow className="h-3.5 w-3.5" />
                   </div>
                 </Link>
               </motion.div>
@@ -235,39 +247,48 @@ export default function Home() {
       </section>
 
       {/* ── Stats ── */}
-      <section className="border-t border-cyber-border py-24 sm:py-32">
-        <div className="page-container">
-          <div className="mx-auto grid max-w-4xl gap-14 sm:grid-cols-3 sm:gap-16">
+      <section className="py-12 sm:py-20 px-5 sm:px-8">
+        <div className="mx-auto w-full max-w-5xl">
+          <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3 sm:gap-5">
             {[
               {
+                id: "attacks",
                 value: "+200%",
                 label: t("stats.attacks"),
                 color: "text-cyber-red",
+                bg: "bg-cyber-red/8",
+                border: "border-cyber-red/15",
               },
               {
+                id: "unaware",
                 value: "70%",
                 label: t("stats.unaware"),
                 color: "text-cyber-yellow",
+                bg: "bg-cyber-yellow/8",
+                border: "border-cyber-yellow/15",
               },
               {
+                id: "phishing",
                 value: "#1",
                 label: t("stats.phishing"),
                 color: "text-cyber-cyan",
+                bg: "bg-cyber-cyan/8",
+                border: "border-cyber-cyan/15",
               },
             ].map((stat) => (
               <motion.div
-                key={stat.label}
+                key={stat.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-center"
+                className={`rounded-2xl border ${stat.border} ${stat.bg} p-6 text-center sm:p-8`}
               >
                 <div
-                  className={`text-4xl font-black sm:text-5xl ${stat.color}`}
+                  className={`text-3xl font-black sm:text-4xl ${stat.color}`}
                 >
                   {stat.value}
                 </div>
-                <p className="mt-3 text-sm text-cyber-text-dim sm:text-base">
+                <p className="mt-2 text-xs text-cyber-text-dim sm:text-sm">
                   {stat.label}
                 </p>
               </motion.div>
@@ -277,15 +298,15 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-cyber-border py-14 sm:py-16">
-        <div className="page-container flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-2.5">
-            <Shield className="h-5 w-5 text-cyber-cyan" />
+      <footer className="border-t border-cyber-border/40 py-10 sm:py-12 px-5 sm:px-8">
+        <div className="mx-auto w-full max-w-5xl flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-cyber-cyan" />
             <span className="text-sm font-semibold text-cyber-text-dim">
-              CyberGuard Tunisia
+              SidiCyber Tunisia
             </span>
           </div>
-          <p className="text-xs text-cyber-text-dim text-center sm:text-start">
+          <p className="text-xs text-cyber-text-dim/60 text-center sm:text-start">
             {t("footer.desc")}
           </p>
         </div>

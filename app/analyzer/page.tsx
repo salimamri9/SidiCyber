@@ -114,8 +114,8 @@ export default function AnalyzerPage() {
   };
 
   return (
-    <div className="cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16">
-      <div className="my-auto w-full max-w-3xl">
+    <div className="cyber-grid flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
+      <div className="w-full max-w-3xl">
 
         {/* Header */}
         <motion.div

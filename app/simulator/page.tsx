@@ -212,19 +212,19 @@ export default function SimulatorPage() {
   // --------------- Loading scenarios ---------------
   if (loadingScenarios) {
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+      <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-6 text-center"
+          className="flex flex-col items-center gap-5 text-center"
         >
-          <div className="relative h-20 w-20">
-            <div className="absolute inset-0 animate-spin rounded-full border-4 border-cyber-border border-t-cyber-cyan" />
-            <Zap className="absolute inset-4 h-12 w-12 text-cyber-cyan" />
+          <div className="relative h-14 w-14">
+            <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-cyber-border border-t-cyber-cyan" />
+            <Zap className="absolute inset-3 h-8 w-8 text-cyber-cyan" />
           </div>
           <div>
-            <h2 className="mb-2 text-xl font-bold">{t("sim.title")}</h2>
-            <p className="text-sm text-cyber-text-dim">
+            <h2 className="mb-1.5 text-lg font-bold">{t("sim.title")}</h2>
+            <p className="text-xs text-cyber-text-dim">
               {t("sim.generating") || "Generating scenarios with AI..."}
             </p>
           </div>
@@ -236,24 +236,24 @@ export default function SimulatorPage() {
   // --------------- Scenario generation error ---------------
   if (scenarioError) {
     return (
-      <div className="cyber-grid flex flex-1 items-center justify-center px-4 py-10 sm:px-8 sm:py-16">
+      <div className="cyber-grid flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-16">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-lg rounded-2xl border border-cyber-red/30 bg-cyber-red/5 p-8 text-center sm:p-10"
+          className="w-full max-w-md rounded-xl border border-cyber-red/25 bg-cyber-red/5 p-6 text-center sm:p-8"
         >
-          <AlertTriangle className="mx-auto mb-6 h-12 w-12 text-cyber-red" />
-          <h2 className="mb-3 text-xl font-bold text-cyber-red">
+          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-cyber-red" />
+          <h2 className="mb-2 text-lg font-bold text-cyber-red">
             {t("sim.error") || "Error"}
           </h2>
-          <p className="mb-6 text-sm leading-relaxed text-cyber-text-dim">
+          <p className="mb-5 text-xs leading-relaxed text-cyber-text-dim sm:text-sm">
             {scenarioError}
           </p>
           <button
             onClick={loadScenarios}
-            className="mx-auto flex items-center gap-2 rounded-xl bg-cyber-cyan px-6 py-3 font-bold text-cyber-darker transition hover:bg-cyber-cyan/80"
+            className="mx-auto flex items-center gap-2 rounded-lg bg-cyber-cyan px-5 py-2.5 text-sm font-bold text-cyber-darker transition hover:bg-cyber-cyan/80"
           >
-            <RotateCcw className="h-5 w-5" />
+            <RotateCcw className="h-4 w-4" />
             {t("sim.retry") || "Retry"}
           </button>
         </motion.div>
@@ -293,11 +293,11 @@ export default function SimulatorPage() {
 
   // --------------- Main simulator screen ---------------
   return (
-    <div className={`cyber-grid flex flex-1 flex-col items-center px-4 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
+    <div className={`cyber-grid flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
       <ConfettiBurst trigger={showConfetti} />
       <XPToast xp={xpToast.xp} reason={xpToast.reason} show={xpToast.show} />
 
-      <div className="my-auto w-full max-w-4xl">
+      <div className="w-full max-w-4xl">
         {/* ---- Header with title + badges ---- */}
         <div className="mb-10 flex flex-col gap-6 sm:mb-12 sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            width: 320px;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 16px;
+            margin: 0;
+            background-color: #f9fafb;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .logo {
+            font-weight: bold;
+            color: #ef4444;
+            font-size: 1.2rem;
+        }
+        .content {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #result {
+            display: none;
+            margin-top: 12px;
+        }
+        .risk-score {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 8px 0;
+        }
+        .verdict {
+            font-weight: bold;
+            text-align: center;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+        .details {
+            font-size: 0.9rem;
+            color: #4b5563;
+            line-height: 1.4;
+        }
+        .btn {
+            width: 100%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .btn:disabled {
+            background: #9ca3af;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo">SidiCyber 🛡️</span>
+    </div>
+
+    <div class="content" id="main-ui">
+        <div id="instruction">قم بتظليل النص المشبوه ثم افتح الإضافة.</div>
+        <button id="analyze-btn" class="btn">تحليل النص المظلل</button>
+
+        <div id="loading" class="loading">جاري التحليل بالذكاء الاصطناعي...</div>
+
+        <div id="result">
+            <div id="score-val" class="risk-score">0</div>
+            <div id="verdict-val" class="verdict">آمن</div>
+            <div id="explanation-val" class="details"></div>
+            <button id="reset-btn" class="btn" style="background: #e5e7eb; color: #374151;">تحليل جديد</button>
+        </div>
+        <div id="error-msg" class="error"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
