@@ -234,11 +234,11 @@ export default function LegalPage() {
 
   // --------------- Quiz ---------------
   return (
-    <div className={`cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
+    <div className={`cyber-grid flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
       <ConfettiBurst trigger={showConfetti} />
       <XPToast xp={xpToast.xp} reason={xpToast.reason} show={xpToast.show} />
 
-      <div className="my-auto w-full max-w-3xl">
+      <div className="w-full max-w-3xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

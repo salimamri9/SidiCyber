@@ -293,11 +293,11 @@ export default function SimulatorPage() {
 
   // --------------- Main simulator screen ---------------
   return (
-    <div className={`cyber-grid flex flex-1 flex-col items-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
+    <div className={`cyber-grid flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 sm:py-16 ${shake ? "animate-shake" : ""}`}>
       <ConfettiBurst trigger={showConfetti} />
       <XPToast xp={xpToast.xp} reason={xpToast.reason} show={xpToast.show} />
 
-      <div className="my-auto w-full max-w-4xl">
+      <div className="w-full max-w-4xl">
         {/* ---- Header with title + badges ---- */}
         <div className="mb-10 flex flex-col gap-6 sm:mb-12 sm:flex-row sm:items-center sm:justify-between">
           <div>

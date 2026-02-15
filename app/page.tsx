@@ -35,6 +35,7 @@ export default function Home() {
 
   const features = [
     {
+      id: "simulator",
       icon: Smartphone,
       title: t("features.sim.title"),
       description: t("features.sim.desc"),
@@ -45,6 +46,7 @@ export default function Home() {
       hoverBorder: "hover:border-cyber-cyan/30",
     },
     {
+      id: "analyzer",
       icon: Search,
       title: t("features.analyzer.title"),
       description: t("features.analyzer.desc"),
@@ -55,6 +57,7 @@ export default function Home() {
       hoverBorder: "hover:border-cyber-yellow/30",
     },
     {
+      id: "legal",
       icon: Scale,
       title: t("features.legal.title"),
       description: t("features.legal.desc"),
@@ -65,6 +68,7 @@ export default function Home() {
       hoverBorder: "hover:border-cyber-purple/30",
     },
     {
+      id: "tips",
       icon: BookOpen,
       title: t("tips.title"),
       description: t("tips.subtitle"),
@@ -77,11 +81,11 @@ export default function Home() {
   ];
 
   const threats = [
-    { icon: Smartphone, label: t("hero.threat.sms") },
-    { icon: Wifi, label: t("hero.threat.wifi") },
-    { icon: Lock, label: t("hero.threat.password") },
-    { icon: Eye, label: t("hero.threat.privacy") },
-    { icon: AlertTriangle, label: t("hero.threat.fake") },
+    { id: "sms", icon: Smartphone, label: t("hero.threat.sms") },
+    { id: "wifi", icon: Wifi, label: t("hero.threat.wifi") },
+    { id: "password", icon: Lock, label: t("hero.threat.password") },
+    { id: "privacy", icon: Eye, label: t("hero.threat.privacy") },
+    { id: "fake", icon: AlertTriangle, label: t("hero.threat.fake") },
   ];
 
   return (
@@ -172,7 +176,7 @@ export default function Home() {
         >
           {threats.map((threat) => (
             <motion.div
-              key={threat.label}
+              key={threat.id}
               variants={item}
               className="flex items-center gap-2 rounded-full border border-cyber-border/60 bg-cyber-card/50 px-3.5 py-2 backdrop-blur-sm sm:px-4 sm:py-2.5"
             >
@@ -210,7 +214,7 @@ export default function Home() {
             className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6"
           >
             {features.map((feature) => (
-              <motion.div key={feature.title} variants={item}>
+              <motion.div key={feature.id} variants={item}>
                 <Link
                   href={feature.href}
                   className={`card-hover group flex h-full flex-col rounded-2xl border border-cyber-border bg-cyber-card p-6 transition-all sm:p-8 ${feature.hoverBorder}`}
@@ -248,6 +252,7 @@ export default function Home() {
           <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3 sm:gap-5">
             {[
               {
+                id: "attacks",
                 value: "+200%",
                 label: t("stats.attacks"),
                 color: "text-cyber-red",
@@ -255,6 +260,7 @@ export default function Home() {
                 border: "border-cyber-red/15",
               },
               {
+                id: "unaware",
                 value: "70%",
                 label: t("stats.unaware"),
                 color: "text-cyber-yellow",
@@ -262,6 +268,7 @@ export default function Home() {
                 border: "border-cyber-yellow/15",
               },
               {
+                id: "phishing",
                 value: "#1",
                 label: t("stats.phishing"),
                 color: "text-cyber-cyan",
@@ -270,7 +277,7 @@ export default function Home() {
               },
             ].map((stat) => (
               <motion.div
-                key={stat.label}
+                key={stat.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

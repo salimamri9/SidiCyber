@@ -139,7 +139,7 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-t border-cyber-border bg-cyber-darker/95 backdrop-blur-xl md:hidden"
+            className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-cyber-border bg-cyber-darker/95 backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col gap-1 p-3">
               {links.map((link) => (

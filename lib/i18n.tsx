@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 export type Locale = "ar" | "en" | "fr";
 
@@ -548,14 +548,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ar");
 
   // Hydrate from localStorage on mount
-  useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("SidiCyber-locale") as Locale | null;
-      if (saved && ["ar", "en", "fr"].includes(saved)) {
-        setLocaleState(saved);
-      }
+  useEffect(() => {
+    const saved = localStorage.getItem("SidiCyber-locale") as Locale | null;
+    if (saved && ["ar", "en", "fr"].includes(saved)) {
+      setLocaleState(saved);
     }
-  });
+  }, []);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
