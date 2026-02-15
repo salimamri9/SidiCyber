@@ -91,7 +91,7 @@ export default function Home() {
   return (
     <div className="cyber-grid">
       {/* ── Hero ── */}
-      <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center overflow-hidden px-5 sm:px-8">
+      <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-start pt-22 sm:pt-10 lg:justify-center lg:pt-0 overflow-hidden px-5 sm:px-8">
         {/* Background blurs */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute top-1/4 right-1/4 h-64 w-64 rounded-full bg-cyber-cyan/4 blur-[120px] sm:h-[420px] sm:w-[420px]" />
@@ -172,16 +172,16 @@ export default function Home() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="absolute bottom-8 flex flex-wrap justify-center gap-2 px-5 sm:bottom-12 sm:gap-3"
+          className="absolute bottom-0 flex w-full flex-wrap justify-center gap-3 px-6 sm:bottom-0 sm:gap-4 md:px-12"
         >
           {threats.map((threat) => (
             <motion.div
               key={threat.id}
               variants={item}
-              className="flex items-center gap-2 rounded-full border border-cyber-border/60 bg-cyber-card/50 px-3.5 py-2 backdrop-blur-sm sm:px-4 sm:py-2.5"
+              className="group flex min-w-[130px] items-center justify-center gap-2 rounded-full border border-cyber-border/40 bg-cyber-card/30 px-4 py-2.5 backdrop-blur-md transition-all hover:border-cyber-red/40 hover:bg-cyber-red/5 sm:min-w-[150px] sm:px-5 sm:py-3 lg:min-w-[170px]"
             >
-              <threat.icon className="h-3 w-3 text-cyber-red sm:h-3.5 sm:w-3.5" />
-              <span className="text-[10px] font-medium text-cyber-text-dim sm:text-xs">
+              <threat.icon className="h-4 w-4 text-cyber-red opacity-80 transition-transform group-hover:scale-110" />
+              <span className="whitespace-nowrap text-[10px] font-bold text-cyber-text-dim transition-colors group-hover:text-cyber-text sm:text-xs">
                 {threat.label}
               </span>
             </motion.div>
@@ -190,7 +190,7 @@ export default function Home() {
       </section>
 
       {/* ── Features ── */}
-      <section className="py-20 sm:py-28 px-5 sm:px-8">
+      <section className="py-12 sm:py-16 px-5 sm:px-8">
         <div className="mx-auto w-full max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -247,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* ── Stats ── */}
-      <section className="py-16 sm:py-24 px-5 sm:px-8">
+      <section className="py-12 sm:py-20 px-5 sm:px-8">
         <div className="mx-auto w-full max-w-5xl">
           <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3 sm:gap-5">
             {[

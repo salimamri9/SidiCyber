@@ -103,6 +103,14 @@ html:not([lang="ar"]) body {
   background: var(--color-cyber-cyan);
 }
 
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ── Phone frame notch ── */
 .phone-notch {
   width: 40%;
