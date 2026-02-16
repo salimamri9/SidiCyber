@@ -1,5 +1,5 @@
 const API_URL = "https://sidicyber.salimamri.tech/api/analyze";
-const API_KEY = "JhYM4alriQHfFIteo6zOsUEn9jZTqNgA"; // Should match your backend EXTENSION_API_KEY
+const API_KEY = "the real key"; // Should match your backend EXTENSION_API_KEY
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
